@@ -1,0 +1,44 @@
+name: Contexts and Secrets
+on:
+  workflow_dispatch:
+env:
+  APP_ENV: development
+jobs:
+  context-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print context objects
+        run: |
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Repo: ${{ github.repository }}"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Env: ${{ env.APP_ENV }}"
+          echo "Var: ${{ vars.MY_VAR }}"
+
+      - name: Use secret
+        env:
+          SECRET_VALUE: ${{ secrets.MY_SECRET }}
+        run: echo "Secret is $SECRET_VALUE"
+
+      - name: Call API with GITHUB_TOKEN
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }} | head -n 8
+
+      - name: If contains
+        if: contains(github.actor, '48746')
+        run: echo "contains() matched the actor"
+
+      - name: If success
+        if: success()
+        run: echo "success() is true"
+
+      - name: If failure
+        if: failure()
+        run: echo "failure() is true"
+
+      - name: If always
+        if: always()
+        run: echo "always() runs every time"
