@@ -1,0 +1,57 @@
+name: Module 6
+on:
+  workflow_dispatch:
+
+jobs:
+  matrix-job:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --version
+      - run: echo "Running on ${{ matrix.os }} with Node ${{ matrix.node }}"
+
+  cache-job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create dummy file to cache
+        run: |
+          mkdir -p mycache
+          echo "cached data" > mycache/data.txt
+      - name: Cache folder
+        uses: actions/cache@v4
+        with:
+          path: mycache
+          key: my-cache-key-v1
+      - name: Show cache content
+        run: cat mycache/data.txt
+
+  service-job:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Query PostgreSQL
+        env:
+          PGPASSWORD: postgres
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
+          psql -h localhost -U postgres -c "SELECT version();"
