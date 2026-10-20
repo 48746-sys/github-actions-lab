@@ -1,0 +1,24 @@
+name: Manual Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Your name'
+        required: true
+        default: 'Student'
+      greeting:
+        description: 'Greeting message'
+        required: true
+        default: 'Hello'
+      data:
+        description: 'Extra data'
+        required: false
+        default: 'sample data'
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "${{ github.event.inputs.greeting }}, ${{ github.event.inputs.name }}!"
+          echo "Data: ${{ github.event.inputs.data }}"
+          echo "Triggered by ${{ github.event_name }}"
