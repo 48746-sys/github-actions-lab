@@ -1,0 +1,34 @@
+name: Multi OS Runners
+on:
+  workflow_dispatch:
+jobs:
+  ubuntu-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "OS: ${{ runner.os }}"
+          cat /etc/os-release | head -n 3
+
+  windows-job:
+    runs-on: windows-latest
+    steps:
+      - name: PowerShell info
+        shell: pwsh
+        run: |
+          Write-Host "OS: ${{ runner.os }}"
+          (Get-CimInstance Win32_OperatingSystem).Caption
+      - name: Choco version
+        run: choco --version
+
+  mac-job:
+    runs-on: macos-latest
+    steps:
+      - name: Mac info
+        run: |
+          echo "OS: ${{ runner.os }}"
+          sw_vers
+      - name: Swift compile
+        run: |
+          echo 'print("Hello from Swift")' > hello.swift
+          swiftc hello.swift -o hello
+          ./hello
